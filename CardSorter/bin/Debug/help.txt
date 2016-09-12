@@ -1,0 +1,16 @@
+CardSorter 1.0 usage help
+--------------------------
+Program can sort logs, written by CardWrite by year, month and date
+and than archive sorted folders and place wherever you want.
+--------------------------
+syntax:
+cardsorter.exe [input folder] [output folder] [compression level]
+
+[input folder] - folder, where files from cardwrite application are stored,
+like this:
+Ast3_2015-11-22_14-00-00UTC.log
+or
+Ast1_2015-11-12_20-00-00UTC_COM15.log
+
+[output folder] - folder, in which you want to place archives with sorted logs
+[compression level] - level of compression for archiver (1-10, 5 by default)
