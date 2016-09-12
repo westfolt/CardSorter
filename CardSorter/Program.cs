@@ -17,9 +17,9 @@ namespace CardSorter
         static void Main(string[] args)
         {
             Console.Clear();//clear command prompt on program start
-            ProgramStart();
+            UserInterface.ProgramStart();
             Console.ReadKey();
-            string pathFrom = @"D:\prog\C#\Visual Studio\real\CardSorter\CardSorter\bin\Debug\1";
+            string pathFrom = @"D:\prog\C#\Visual Studio\real\For SorterCard\1";
             string pathTo = pathFrom;//temporary, replace with another folder!!!
             if (!Directory.Exists(pathFrom))
             {
@@ -38,27 +38,6 @@ namespace CardSorter
             Console.ReadKey();
         }
 
-        static void ProgramStart()
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Card Sorter 1.0 started");
-            Console.ForegroundColor = ConsoleColor.Gray;
-        }
-
-        private static void HelpDisplay()
-        {
-            Console.Clear();
-            if (File.Exists("help.txt"))
-            {
-                using (StreamReader sr = new StreamReader("help.txt"))
-                {
-                    Console.WriteLine(sr.ReadToEnd());
-                }
-            }
-            else
-            {
-                Console.WriteLine("Sorry, program help was removed or corrupted");
-            }
-        }
+        
     }
 }
