@@ -12,6 +12,12 @@ namespace CardSorter
 {
     static class FileSystemTasks
     {
+        public delegate Task ProcessStateHandler(string word);
+        //события для оповещения прогрессбаров
+        public static event ProcessStateHandler AnalyzeStarted;
+        public static event ProcessStateHandler ArchivingStarted;
+        public static event ProcessStateHandler AnalyzeFinished;
+        public static event ProcessStateHandler ArchivingFinished;
         enum MonthsNames
         {
             January = 1,
@@ -31,9 +37,36 @@ namespace CardSorter
         {
             return Enum.GetName(typeof(MonthsNames), number);
         }
+
+        public static async Task<List<LogItem>> Analyzer(string pathFrom)
+        {
+            if (!Directory.Exists(pathFrom))
+            {
+                throw new DirectoryNotFoundException("There is no such directory");
+            }
+            if (AnalyzeStarted != null)
+            {
+                AnalyzeStarted("Analyzing");
+            }
+            List<LogItem> LogsCollection = new List<LogItem>();
+
+            string[] filesInFolder = Directory.GetFiles(pathFrom);
+            foreach (string file in filesInFolder)
+            {
+                LogsCollection.Add(new LogItem(file));
+            }
+            if (AnalyzeFinished != null)
+            {
+                AnalyzeFinished("stop");
+            }
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Analyze finished, {0} files will be sorted and archived", LogsCollection.Count);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            return LogsCollection;
+        }
         public static async Task AsyncMover(List<LogItem> LogsCollection, string pathTo)//sorts files to folders like this: year\month\date
         {
-            Console.WriteLine("Files move started!");
+            
             if (LogsCollection == null || LogsCollection.Count == 0)
                 throw new NotImplementedException("There are no items in collection");
             foreach (LogItem logItem in LogsCollection)

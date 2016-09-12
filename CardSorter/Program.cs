@@ -12,6 +12,7 @@ using Ionic.Zlib;
 
 namespace CardSorter
 {
+    
     class Program
     {
         static void Main(string[] args)
@@ -21,17 +22,20 @@ namespace CardSorter
             Console.ReadKey();
             string pathFrom = @"D:\prog\C#\Visual Studio\real\For SorterCard\1";
             string pathTo = pathFrom;//temporary, replace with another folder!!!
-            if (!Directory.Exists(pathFrom))
-            {
-                throw new DirectoryNotFoundException("There is no such directory");
-            }
-            List<LogItem> LogsCollection = new List<LogItem>();
+#region subscribing to events
+            FileSystemTasks.AnalyzeStarted += UserInterface.AsyncProgressDisplayer;
+#endregion
 
-            string[] filesInFolder = Directory.GetFiles(pathFrom);
-            foreach (string file in filesInFolder)
-            {
-                LogsCollection.Add(new LogItem(file));
-            }
+            FileSystemTasks.Analyzer(pathFrom).GetAwaiter().GetResult();
+            Console.WriteLine("Press any key to continue");
+            Console.ReadKey();
+            UserInterface.AsyncProgressDisplayer("Analyzing").GetAwaiter().GetResult();
+            Console.ReadKey();
+            Console.WriteLine("!");
+            Console.ReadKey();
+            
+
+            List<LogItem> LogsCollection = FileSystemTasks.Analyzer(pathFrom).GetAwaiter().GetResult();
             FileSystemTasks.AsyncMover(LogsCollection, pathTo).GetAwaiter().GetResult();//invoke of mover to move files into different folders
             FileSystemTasks.AsyncMassiveArchiver(pathFrom).GetAwaiter().GetResult();
 
