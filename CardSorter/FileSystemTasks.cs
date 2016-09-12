@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Ionic.Zip;
@@ -12,12 +13,9 @@ namespace CardSorter
 {
     static class FileSystemTasks
     {
-        public delegate Task ProcessStateHandler(string word);
-        //события для оповещения прогрессбаров
-        public static event ProcessStateHandler AnalyzeStarted;
-        public static event ProcessStateHandler ArchivingStarted;
-        public static event ProcessStateHandler AnalyzeFinished;
-        public static event ProcessStateHandler ArchivingFinished;
+        public static List<LogItem> LogsCollection;
+        private static string pathFrom;//ввел поле, переделать методы ниже!!!!!
+        
         enum MonthsNames
         {
             January = 1,
@@ -33,21 +31,34 @@ namespace CardSorter
             November,
             December
         }
+
+        public static string PathFrom
+        {
+            get { return pathFrom; }
+            set
+            {
+                if (!Directory.Exists(value))
+                {
+                    throw new DirectoryNotFoundException("There is no such directory");
+                }
+                else
+                {
+                    pathFrom = value;
+                }
+            }
+        }
+
         static string MonthNameGiver(int number)
         {
             return Enum.GetName(typeof(MonthsNames), number);
         }
-
-        public static async Task<List<LogItem>> Analyzer(string pathFrom)
+        public static async Task AnalyzeIt()
         {
-            if (!Directory.Exists(pathFrom))
-            {
-                throw new DirectoryNotFoundException("There is no such directory");
-            }
-            if (AnalyzeStarted != null)
-            {
-                AnalyzeStarted("Analyzing");
-            }
+            UserInterface.wordAction = "Analyzing";
+            Parallel.Invoke(UserInterface.ProgressDisplayer,Analyzer);
+        }
+        private static async void Analyzer()
+        {
             List<LogItem> LogsCollection = new List<LogItem>();
 
             string[] filesInFolder = Directory.GetFiles(pathFrom);
@@ -55,14 +66,15 @@ namespace CardSorter
             {
                 LogsCollection.Add(new LogItem(file));
             }
-            if (AnalyzeFinished != null)
+            Thread.Sleep(2000);
+            UserInterface.stopProgressBar();
+            while (!UserInterface.Stopped)
             {
-                AnalyzeFinished("stop");
+                Thread.Sleep(50);
             }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Analyze finished, {0} files will be sorted and archived", LogsCollection.Count);
             Console.ForegroundColor = ConsoleColor.Gray;
-            return LogsCollection;
         }
         public static async Task AsyncMover(List<LogItem> LogsCollection, string pathTo)//sorts files to folders like this: year\month\date
         {

@@ -22,20 +22,20 @@ namespace CardSorter
             Console.ReadKey();
             string pathFrom = @"D:\prog\C#\Visual Studio\real\For SorterCard\1";
             string pathTo = pathFrom;//temporary, replace with another folder!!!
-#region subscribing to events
-            FileSystemTasks.AnalyzeStarted += UserInterface.AsyncProgressDisplayer;
-#endregion
+            FileSystemTasks.PathFrom = pathFrom;
 
-            FileSystemTasks.Analyzer(pathFrom).GetAwaiter().GetResult();
+            FileSystemTasks.AnalyzeIt().GetAwaiter().GetResult();//запускаем анализ папки с логами
+            List<LogItem> LogsCollection = FileSystemTasks.LogsCollection;//забираем коллекцию с файлами логов после завершения анализа
             Console.WriteLine("Press any key to continue");
             Console.ReadKey();
-            UserInterface.AsyncProgressDisplayer("Analyzing").GetAwaiter().GetResult();
-            Console.ReadKey();
-            Console.WriteLine("!");
-            Console.ReadKey();
-            
 
-            List<LogItem> LogsCollection = FileSystemTasks.Analyzer(pathFrom).GetAwaiter().GetResult();
+            Console.WriteLine("!");
+            //UserInterface.wordAction = "Progress";
+            //UserInterface.AsyncProgressDisplayer();
+            Console.ReadKey();
+
+
+
             FileSystemTasks.AsyncMover(LogsCollection, pathTo).GetAwaiter().GetResult();//invoke of mover to move files into different folders
             FileSystemTasks.AsyncMassiveArchiver(pathFrom).GetAwaiter().GetResult();
 

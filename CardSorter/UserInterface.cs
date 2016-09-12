@@ -8,9 +8,17 @@ using System.Threading.Tasks;
 
 namespace CardSorter
 {
-    static class UserInterface
+    class UserInterface
     {
+        private static bool stopped = true;
         private static bool stopFlag = true;
+        public static string wordAction = "";
+
+        public static bool Stopped
+        {
+            get { return stopped; }
+        }
+
         public static void ProgramStart()
         {
             Console.ForegroundColor = ConsoleColor.Green;
@@ -34,16 +42,20 @@ namespace CardSorter
             }
         }
 
-        public static async Task AsyncProgressDisplayer(string word)
+        public static void ProgressDisplayer()
         {
+            string word = wordAction;
             Console.Write(word);
             stopFlag = true;
+            stopped = false;
             while (stopFlag)
             {
                 for (int i = 0; i <= 5; i++)
                 {
                     Console.Write(".");
-                    Thread.Sleep(1000);
+                    if(!stopFlag)
+                        break;
+                    Thread.Sleep(500);
                 }
                 Console.SetCursorPosition(word.Length, Console.CursorTop);
                 Console.ForegroundColor = ConsoleColor.Black;
@@ -54,12 +66,20 @@ namespace CardSorter
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.SetCursorPosition(word.Length, Console.CursorTop);
             }
+            Console.SetCursorPosition(0, Console.CursorTop);
+            Console.ForegroundColor = ConsoleColor.Black;
+            for (int i = 0; i <= word.Length+6; i++)
+            {
+                Console.Write(Convert.ToChar(219).ToString());
+            }
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.SetCursorPosition(0,Console.CursorTop);
+            stopped = true;
         }
 
-        public static void stopProgressBar(string stopWord)
+        public static void stopProgressBar()
         {
-            if (stopWord == "stop")
-                stopFlag = false;
+            stopFlag = false;
         }
     }
 }
