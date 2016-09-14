@@ -19,29 +19,42 @@ namespace CardSorter
         {
             Console.Clear();//clear command prompt on program start
             UserInterface.ProgramStart();
-            Console.ReadKey();
-            string pathFrom = @"D:\prog\C#\Visual Studio\real\For SorterCard\1";
-            string pathTo = pathFrom;//temporary, replace with another folder!!!
-            FileSystemTasks.PathFrom = pathFrom;
+            Console.ReadKey();//убрать позже, задержки быть не должно!!!!!!!!!!!!!
 
-            FileSystemTasks.AnalyzeIt().GetAwaiter().GetResult();//запускаем анализ папки с логами
-            List<LogItem> LogsCollection = FileSystemTasks.LogsCollection;//забираем коллекцию с файлами логов после завершения анализа
+#region Data Input
+            string[] argumentsHandled = UserInterface.InputHandle(args);
+            if (argumentsHandled==null)//если после обработки аргументов нет - завершаем программу
+                return;
+            string pathFrom = argumentsHandled[0]; //@"D:\prog\C#\Visual Studio\real\For SorterCard\1";
+            string pathTo = argumentsHandled[1];//добавить забрать степень сжатия!!!!!!
+#endregion
+
+#region File Analyzing
+            FileSystemTasks fileSystem = new FileSystemTasks(pathFrom,pathTo);//Объект для работы с файлами
+            fileSystem.AnalyzeIt();//запускаем анализ папки с логами
+            if (fileSystem.LogsCollection.Count == 0)
+            {
+                Console.WriteLine("Press any key to close program");
+                Console.ReadKey();
+                return;
+            }
             Console.WriteLine("Press any key to continue");
             Console.ReadKey();
+#endregion
 
-            Console.WriteLine("!");
-            //UserInterface.wordAction = "Progress";
-            //UserInterface.AsyncProgressDisplayer();
+#region File Moving
+            fileSystem.MoveIt();//запускаем логику создания папок и перемещения файлов
+            Console.WriteLine("Press any key to continue");
             Console.ReadKey();
+#endregion
 
-
-
-            FileSystemTasks.AsyncMover(LogsCollection, pathTo).GetAwaiter().GetResult();//invoke of mover to move files into different folders
-            FileSystemTasks.AsyncMassiveArchiver(pathFrom).GetAwaiter().GetResult();
-
+#region File Archiving
+            fileSystem.ArchivateIt();
+            Console.WriteLine("Press any key to exit");
+            Console.ReadKey();
+#endregion
+            Console.WriteLine("!");
             Console.ReadKey();
         }
-
-        
     }
 }
