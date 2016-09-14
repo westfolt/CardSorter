@@ -21,6 +21,8 @@ namespace CardSorter
         {
             get { return stopped; }
         }
+        
+
         public static void ProgramStart()
         {
             Console.ForegroundColor = ConsoleColor.Green;
@@ -44,26 +46,32 @@ namespace CardSorter
         public static void ProgressDisplayer()
         {
             string word = wordAction;
-            Console.Write(word+ ", {0}% completed",percentCompleted);
+            percentCompleted = 0;
+            Console.Write(word);
             stopFlag = true;
             stopped = false;
             while (stopFlag)
             {
                 for (int i = 0; i <= 5; i++)
                 {
-                    Console.Write(".");
+                    string percents = String.Format(", {0}% completed", percentCompleted);
+                    Console.Write(percents);
+                    for (int j = 0; j <= i; j++)
+                    {
+                        Console.Write(".");    
+                    }
                     if(!stopFlag)
                         break;
-                    Thread.Sleep(500);
+                    Thread.Sleep(200);
+                    Console.SetCursorPosition(word.Length, Console.CursorTop);
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    for (int k = 0; k <= 5+percents.Length; k++)
+                    {
+                        Console.Write(Convert.ToChar(219).ToString());
+                    }
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    Console.SetCursorPosition(word.Length, Console.CursorTop);
                 }
-                Console.SetCursorPosition(word.Length, Console.CursorTop);
-                Console.ForegroundColor = ConsoleColor.Black;
-                for (int i = 0; i <= 5; i++)
-                {
-                    Console.Write(Convert.ToChar(219).ToString());
-                }
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.SetCursorPosition(word.Length, Console.CursorTop);
             }
             Console.SetCursorPosition(0, Console.CursorTop);
             Console.ForegroundColor = ConsoleColor.Black;

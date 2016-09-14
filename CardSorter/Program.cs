@@ -17,20 +17,23 @@ namespace CardSorter
     {
         static void Main(string[] args)
         {
+#region Program start
+            Logger logger = Logger.GetLogger();//объект для записи логов
             Console.Clear();//clear command prompt on program start
             UserInterface.ProgramStart();
-            Console.ReadKey();//убрать позже, задержки быть не должно!!!!!!!!!!!!!
+#endregion
 
 #region Data Input
             string[] argumentsHandled = UserInterface.InputHandle(args);
             if (argumentsHandled==null)//если после обработки аргументов нет - завершаем программу
                 return;
-            string pathFrom = argumentsHandled[0]; //@"D:\prog\C#\Visual Studio\real\For SorterCard\1";
-            string pathTo = argumentsHandled[1];//добавить забрать степень сжатия!!!!!!
+            string pathFrom = argumentsHandled[0];
+            string pathTo = argumentsHandled[1];
+            int compressionLevel = Convert.ToInt32(argumentsHandled[2]);
 #endregion
 
 #region File Analyzing
-            FileSystemTasks fileSystem = new FileSystemTasks(pathFrom,pathTo);//Объект для работы с файлами
+            FileSystemTasks fileSystem = new FileSystemTasks(pathFrom,pathTo,compressionLevel);//Объект для работы с файлами
             fileSystem.AnalyzeIt();//запускаем анализ папки с логами
             if (fileSystem.LogsCollection.Count == 0)
             {
