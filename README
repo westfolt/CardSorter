@@ -1,0 +1,7 @@
+CardSorter program
+Purpose is to provide sorting and archiving of files,
+produced by some data logging soft, that stores its logs in *.log files.
+
+The aim is to sort files into folders by date, month and year and provide 
+archiving of months for easier extraction by users.
+
