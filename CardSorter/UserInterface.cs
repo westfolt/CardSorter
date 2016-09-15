@@ -16,6 +16,7 @@ namespace CardSorter
         public static string wordAction = "";
         public static double percentCompleted = 0;
         public static string nextArchive = "";
+        public static Logger logger;//объект для записи логов
 
         public static bool Stopped
         {
@@ -25,9 +26,11 @@ namespace CardSorter
 
         public static void ProgramStart()
         {
+            logger = Logger.GetLogger();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Card Sorter 1.0 started");
             Console.ForegroundColor = ConsoleColor.Gray;
+            logger.LogWrite("Program started");//to log
         }
         public static void HelpDisplay()
         {
@@ -41,6 +44,7 @@ namespace CardSorter
             else
             {
                 Console.WriteLine("Sorry, program help was removed or corrupted");
+                logger.LogWrite("Helper was corrupted or deleted and cannot be displayed");//to log
             }
         }
         public static void ProgressDisplayer()
@@ -103,6 +107,7 @@ namespace CardSorter
                 HelpDisplay();
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
+                logger.LogWrite("Error: running without arguments");//to log
                 return null;
             }
             else if (args.Length > 3)
@@ -111,6 +116,7 @@ namespace CardSorter
                 HelpDisplay();
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
+                logger.LogWrite("Error: running with more arguments than accepted");//to log
                 return null;
             }
             else
@@ -126,6 +132,7 @@ namespace CardSorter
                 ShowToUser("There is no such input directory", ConsoleColor.Red);
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
+                logger.LogWrite("Error: No such input dictionary");//to log
                 return null;
             }
             else if(!Directory.Exists(argumnetsHandled[1]))//исходящая папка
@@ -152,18 +159,20 @@ namespace CardSorter
                         catch (Exception ex)//доделать!!!! запись в лог
                         {
                             ShowToUser("Cannot create directory!!!", ConsoleColor.Red);
-                            Console.WriteLine(ex.Message);
                             Console.WriteLine("Press any key to exit");
                             Console.ReadKey();
+                            logger.LogWrite("Error: Directory cannot be created, error message: " + ex.Message);//to log
                             return null;
                         }
                         ShowToUser("Directory was succesfully created", ConsoleColor.Green);
+                        logger.LogWrite("Directory " + argumnetsHandled[1] + " was succesfully created");//to log
                     }
                     else
                     {
                         Console.WriteLine("Shutting down program...");
                         Console.WriteLine("Press any key to exit");
                         Console.ReadKey();
+                        logger.LogWrite("Program was shut down by user choice");//to log
                         return null;
                     }
                 }
@@ -187,6 +196,7 @@ namespace CardSorter
                 Console.WriteLine(ex.Message);
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
+                logger.LogWrite("Error: wrong compression level input");//to log
                 return null;
             }
             if (compressionLevel > 9 || compressionLevel < 0)
@@ -194,11 +204,10 @@ namespace CardSorter
                 ShowToUser("Wrong compression level entered! Only ingers [0-9] allowed", ConsoleColor.Red);
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
+                logger.LogWrite("Error: wrong compression level input");//to log
                 return null;
             }
             return argumnetsHandled;
         }
-        
-        
     }
 }

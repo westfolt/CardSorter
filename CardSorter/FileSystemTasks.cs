@@ -125,6 +125,7 @@ namespace CardSorter
         }
         private void Analyzer()
         {
+            UserInterface.logger.LogWrite("File analyze started");//to log
             string[] filesInFolder = Directory.GetFiles(_pathFrom);
             double percentCompletion = 0;
             double oneAnalyzeCost = Math.Round((100.0/filesInFolder.Length),2);
@@ -149,22 +150,23 @@ namespace CardSorter
             if (_logsCollection.Count != 0)
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Analyze finished, {0} files will be sorted and archived", _logsCollection.Count);
+                string message = string.Format("Analyze finished, {0} files will be sorted and archived",
+                    _logsCollection.Count);
+                Console.WriteLine(message);
+                UserInterface.logger.LogWrite(message);//to log
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("No card logs were found in selected folder");
+                string message = "No card logs were found in selected folder";
+                Console.WriteLine(message);
+                UserInterface.logger.LogWrite(message);//to log
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
         }
         public void Mover()//sorts files to folders like this: year\month\date
         {
-            
-            if (LogsCollection == null || LogsCollection.Count == 0)//лишняя проверка!!!!!!!!
-                throw new NotImplementedException("There are no items in collection");
-
             double processCompletion = 0;
             double oneMoveCost = Math.Round((100.0/LogsCollection.Count),2);//на столько будет увеличиваться процент при архивировании каждой папки
             foreach (LogItem logItem in LogsCollection)
@@ -192,7 +194,17 @@ namespace CardSorter
                     }
                 }
                 #endregion
-                logItem.Info.MoveTo(tempDirectory + @"\" + logItem.Info.Name);
+
+                try
+                {
+                    logItem.Info.MoveTo(tempDirectory + @"\" + logItem.Info.Name);
+                }
+                catch (Exception ex)
+                {
+                    UserInterface.logger.LogWrite("Error occured moving file " + logItem.Info.Name + " to folder " + tempDirectory);//to log
+                    UserInterface.logger.LogWrite("Error message: " + ex.Message);//to log
+                }
+                UserInterface.logger.LogWrite("File " + logItem.Info.Name + " was successfully moved to folder: " + tempDirectory);//to log
                 processCompletion += oneMoveCost;//увеличиваем процент при каждом перемещении файла
                 UserInterface.percentCompleted = Math.Round(processCompletion);
             }
@@ -207,6 +219,7 @@ namespace CardSorter
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Files have been moved succesfully to folders");
             Console.ForegroundColor = ConsoleColor.Gray;
+            UserInterface.logger.LogWrite("Moving completed succesfully, all files moved");//to log
         }
         public void MassiveArchiver()
         {
@@ -222,7 +235,8 @@ namespace CardSorter
             foreach (string yearDirectory in yearsDirectories)//перебор по годам
             {
                 string year = yearDirectory.Substring(yearDirectory.Length - 4);
-                //Console.WriteLine("Started archiving in folder {0}", year);только в лог!!!!!!!!!!!
+                string message = string.Format("Started archiving in folder {0}", year);//to log
+                UserInterface.logger.LogWrite(message);//to log
                 string[] directoriesForArchiving = Directory.GetDirectories(yearDirectory);
                 for (int i = 0; i < directoriesForArchiving.Length; i++)//перебор по месяцам
                 {
@@ -235,12 +249,16 @@ namespace CardSorter
                     catch (Exception ex)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine(ex.Message);//только в лог!!!!!!!!!1
-                        Console.WriteLine("Error occured in working with: {0}", directoriesForArchiving[i]);
+                        string errorMessage = string.Format("Error occured in working with: {0}",
+                            directoriesForArchiving[i]);
+                        Console.WriteLine(errorMessage);
                         Console.ForegroundColor = ConsoleColor.Gray;
+                        UserInterface.logger.LogWrite(errorMessage);//to log
+                        UserInterface.logger.LogWrite("Error message: " + ex.Message);//to log
                     }
                 }
-                //Console.WriteLine("Finished archiving of folder {0}", year);только в лог!!!!!!!!!!
+                string successMessage = string.Format("Finished archiving of folder {0}", year);//to log
+                UserInterface.logger.LogWrite(successMessage);
             }
             UserInterface.percentCompleted = 100;//задача завершена, процент выполнения=100
             Thread.Sleep(2000);
@@ -251,8 +269,11 @@ namespace CardSorter
             }
             UserInterface.percentCompleted = 0;//после завершения прогрессбара возвращаем обратно значение процента
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("All files were succcesfully archived, {0} archives created",archivesCounter);
+            string archivingFinishedMessage = string.Format(
+                "All files were succcesfully archived, {0} archives created", archivesCounter);
+            Console.WriteLine(archivingFinishedMessage);
             Console.ForegroundColor = ConsoleColor.Gray;
+            UserInterface.logger.LogWrite(archivingFinishedMessage);//to log
             Console.ReadKey();
         }//uses onefolderarchiver to archive all months folders
         void OneFolderArchiver(string directoryToArchive)//archiving of one folder
