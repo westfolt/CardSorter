@@ -61,7 +61,7 @@ namespace CardSorter
             Console.WriteLine("Press any key to exit");
             Console.ReadKey();
 #endregion
-            UserInterface.logger.LogWrite("Program finished correctly");
+            UserInterface.logger.LogWrite("Program finished correctly");//to log
         }
     }
 }

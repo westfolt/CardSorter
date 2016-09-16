@@ -138,13 +138,14 @@ namespace CardSorter
                 }
                 percentCompletion += oneAnalyzeCost;//каждый файл увеличивает процент готовности
                 UserInterface.percentCompleted = Math.Round(percentCompletion);
+                Thread.Sleep(50);//убрать, тестирование!!!!!!!!!!!!!!!
             }
             UserInterface.percentCompleted = 100;//анализ завершен
             Thread.Sleep(2000);
             UserInterface.stopProgressBar();
             while (!UserInterface.Stopped)
             {
-                Thread.Sleep(50);
+                Thread.Sleep(100);
             }
             UserInterface.percentCompleted = 0;//после завершения прогрессбара возвращаем процент в 0
             if (_logsCollection.Count != 0)
@@ -207,6 +208,7 @@ namespace CardSorter
                 UserInterface.logger.LogWrite("File " + logItem.Info.Name + " was successfully moved to folder: " + tempDirectory);//to log
                 processCompletion += oneMoveCost;//увеличиваем процент при каждом перемещении файла
                 UserInterface.percentCompleted = Math.Round(processCompletion);
+                Thread.Sleep(100);//убрать, тестирование!!!!!!!!!!!!!!!!!1
             }
             UserInterface.percentCompleted = 100;
             Thread.Sleep(2000);
@@ -274,17 +276,37 @@ namespace CardSorter
             Console.WriteLine(archivingFinishedMessage);
             Console.ForegroundColor = ConsoleColor.Gray;
             UserInterface.logger.LogWrite(archivingFinishedMessage);//to log
-            Console.ReadKey();
+            Console.ReadKey();//убрать в конце!!!!!!!!!!!!!!
         }//uses onefolderarchiver to archive all months folders
-        void OneFolderArchiver(string directoryToArchive)//archiving of one folder
+
+        private void OneFolderArchiver(string directoryToArchive) //archiving of one folder
         {
             Thread.CurrentThread.Priority = ThreadPriority.Lowest;
-            using (ZipFile zip = new ZipFile(directoryToArchive))
+            if (File.Exists(directoryToArchive + ".zip"))//если архив уже существует - дополняем файлами
             {
-                zip.CompressionLevel = Level;
-                zip.AddDirectory(directoryToArchive);
-                zip.Save(directoryToArchive + ".zip");
+                using (ZipFile zip = ZipFile.Read(directoryToArchive + ".zip"))
+                {
+                    DirectoryInfo dirToArchive = new DirectoryInfo(directoryToArchive);
+                    DirectoryInfo[] dirs = dirToArchive.GetDirectories();
+                    foreach (DirectoryInfo subdir in dirs)
+                    {
+                        zip.UpdateDirectory(subdir.FullName,subdir.Name);
+                    }
+                    zip.Save();
+                }
             }
+            else//если нет - создаем новый
+            {
+                using (ZipFile zip = new ZipFile(directoryToArchive))
+                {
+                    zip.CompressionLevel = Level;
+                    zip.AddDirectory(directoryToArchive);
+                    zip.Save(directoryToArchive + ".zip");
+
+                }
+            }
+            
+
             Thread.CurrentThread.Priority = ThreadPriority.Normal;
             Directory.Delete(directoryToArchive, true);
         }
