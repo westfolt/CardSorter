@@ -17,6 +17,7 @@ namespace CardSorter
         private string _pathFrom;//ввел поле, переделать методы ниже!!!!!
         private string _pathTo;
         private CompressionLevel compressionLevel;
+        private List<string> yearFoldersFinal;//for storage of yearFolders in destination path
         
 
         //constructor
@@ -25,6 +26,8 @@ namespace CardSorter
             PathFrom = pathFrom;
             PathTo = pathTo;
             _logsCollection = new List<LogItem>();
+            yearFoldersFinal = new List<string>();
+#region compressionLevel
             switch (compressionLevel)
             {
                 case 0:
@@ -61,6 +64,8 @@ namespace CardSorter
                     Level = CompressionLevel.Level5;
                     break;
             }
+#endregion
+
         }
         enum MonthsNames
         {
@@ -173,6 +178,10 @@ namespace CardSorter
             foreach (LogItem logItem in LogsCollection)
             {
                 string tempDirectory = _pathTo + @"\" + logItem.Year;
+                if (!yearFoldersFinal.Contains(tempDirectory))
+                {
+                    yearFoldersFinal.Add(tempDirectory);    
+                }
                 #region Logic of folder creation
                 if (!Directory.Exists(tempDirectory))
                 {
@@ -195,7 +204,6 @@ namespace CardSorter
                     }
                 }
                 #endregion
-
                 try
                 {
                     logItem.Info.MoveTo(tempDirectory + @"\" + logItem.Info.Name);
@@ -225,16 +233,15 @@ namespace CardSorter
         }
         public void MassiveArchiver()
         {
-            string[] yearsDirectories = Directory.GetDirectories(_pathTo);
             int archivesCounter = 0;
-            foreach (string yearsDirectory in yearsDirectories)//узнаем количество папок для архивации для расчета процента готовности
+            foreach (string yearsDirectory in yearFoldersFinal)//узнаем количество папок для архивации для расчета процента готовности
             {
                 string[] monthDirectoriesInYear = Directory.GetDirectories(yearsDirectory);
                 archivesCounter += monthDirectoriesInYear.Length;
             }
             double processCompletion = 0;
             double oneArchiveCost = Math.Round((100.0/archivesCounter),2);//на столько будет увеличиваться процент при архивировании каждой папки
-            foreach (string yearDirectory in yearsDirectories)//перебор по годам
+            foreach (string yearDirectory in yearFoldersFinal)//перебор по годам
             {
                 string year = yearDirectory.Substring(yearDirectory.Length - 4);
                 string message = string.Format("Started archiving in folder {0}", year);//to log
