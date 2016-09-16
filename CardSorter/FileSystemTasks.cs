@@ -14,10 +14,9 @@ namespace CardSorter
     class FileSystemTasks
     {
         private List<LogItem> _logsCollection;
-        private string _pathFrom;//ввел поле, переделать методы ниже!!!!!
+        private string _pathFrom;//change fields down!!!!!!!!!!!testing!!!!!!!!!!!!!!
         private string _pathTo;
-        private CompressionLevel compressionLevel;
-        
+
 
         //constructor
         public FileSystemTasks(string pathFrom,string pathTo, int compressionLevel)
@@ -98,27 +97,23 @@ namespace CardSorter
             private set { _pathTo = value; }
         }
 
-        public CompressionLevel Level
-        {
-            get { return compressionLevel; }
-            private set { compressionLevel = value; }
-        }
+        public CompressionLevel Level { get; private set; }
 
         static string MonthNameGiver(int number)
         {
             return Enum.GetName(typeof(MonthsNames), number);
-        }
-        public void AnalyzeIt()
+        }//gives month name instead of number
+        public void AnalyzeIt()//starts analyzer and progressbar in parallel
         {
             UserInterface.wordAction = "Analyzing";
             Parallel.Invoke(UserInterface.ProgressDisplayer,Analyzer);
         }
-        public void MoveIt()
+        public void MoveIt()//starts mover and progressbar in parallel
         {
             UserInterface.wordAction = "Moving files";
             Parallel.Invoke(UserInterface.ProgressDisplayer,Mover);
         }
-        public void ArchivateIt()
+        public void ArchivateIt()//starts archiver and progressbar in parallel
         {
             UserInterface.wordAction = "Archiving files";
             Parallel.Invoke(UserInterface.ProgressDisplayer,MassiveArchiver);
@@ -132,23 +127,23 @@ namespace CardSorter
             foreach (string file in filesInFolder)
             {
                 FileInfo oneFile = new FileInfo(file);
-                if (oneFile.Extension == ".log" && oneFile.Name.StartsWith("Ast"))//проверяем, является ли файл логом card-write
+                if (oneFile.Extension == ".log" && oneFile.Name.StartsWith("Ast"))//checking, if file is log of needed program (starts with "Ast" and has .log extension)
                 {
-                    _logsCollection.Add(new LogItem(file));//если да - заносим в коллекцию
+                    _logsCollection.Add(new LogItem(file));//if yes - adding it to collection
                 }
-                percentCompletion += oneAnalyzeCost;//каждый файл увеличивает процент готовности
+                percentCompletion += oneAnalyzeCost;//every file adds completion percent
                 UserInterface.percentCompleted = Math.Round(percentCompletion);
-                Thread.Sleep(50);//убрать, тестирование!!!!!!!!!!!!!!!
+                Thread.Sleep(50);//for testing purpose only!!!!!!!!!!!!!!
             }
-            UserInterface.percentCompleted = 100;//анализ завершен
+            UserInterface.percentCompleted = 100;//analyze completed, setting percent to 100
             Thread.Sleep(2000);
-            UserInterface.stopProgressBar();
+            UserInterface.stopProgressBar();//calling progressbar stop
             while (!UserInterface.Stopped)
             {
                 Thread.Sleep(100);
             }
-            UserInterface.percentCompleted = 0;//после завершения прогрессбара возвращаем процент в 0
-            if (_logsCollection.Count != 0)
+            UserInterface.percentCompleted = 0;//after progressbar stop returning percent to 0
+            if (_logsCollection.Count != 0)//if log files were found
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 string message = string.Format("Analyze finished, {0} files will be sorted and archived",
@@ -157,7 +152,7 @@ namespace CardSorter
                 UserInterface.logger.LogWrite(message);//to log
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
-            else
+            else//if not
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 string message = "No card logs were found in selected folder";
@@ -169,7 +164,7 @@ namespace CardSorter
         public void Mover()//sorts files to folders like this: year\month\date
         {
             double processCompletion = 0;
-            double oneMoveCost = Math.Round((100.0/LogsCollection.Count),2);//на столько будет увеличиваться процент при архивировании каждой папки
+            double oneMoveCost = Math.Round((100.0/LogsCollection.Count),2);//calculating percent increase with every folder move
             foreach (LogItem logItem in LogsCollection)
             {
                 string tempDirectory = _pathTo + @"\" + logItem.Year;
@@ -196,7 +191,7 @@ namespace CardSorter
                 }
                 #endregion
 
-                try
+                try//moving file to folder created
                 {
                     logItem.Info.MoveTo(tempDirectory + @"\" + logItem.Info.Name);
                 }
@@ -206,18 +201,18 @@ namespace CardSorter
                     UserInterface.logger.LogWrite("Error message: " + ex.Message);//to log
                 }
                 UserInterface.logger.LogWrite("File " + logItem.Info.Name + " was successfully moved to folder: " + tempDirectory);//to log
-                processCompletion += oneMoveCost;//увеличиваем процент при каждом перемещении файла
+                processCompletion += oneMoveCost;//increasing percent with every file move
                 UserInterface.percentCompleted = Math.Round(processCompletion);
-                Thread.Sleep(100);//убрать, тестирование!!!!!!!!!!!!!!!!!1
+                Thread.Sleep(100);//for testing only!!!!!!!!!!!!1
             }
-            UserInterface.percentCompleted = 100;
+            UserInterface.percentCompleted = 100;//completed - percent 100
             Thread.Sleep(2000);
-            UserInterface.stopProgressBar();
+            UserInterface.stopProgressBar();//stopping progressbar
             while (!UserInterface.Stopped)
             {
                 Thread.Sleep(50);
             }
-            UserInterface.percentCompleted = 0;//после завершения прогрессбара возвращаем обратно значение процента
+            UserInterface.percentCompleted = 0;//making percent 0 again
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Files have been moved succesfully to folders");
             Console.ForegroundColor = ConsoleColor.Gray;
@@ -281,8 +276,8 @@ namespace CardSorter
 
         private void OneFolderArchiver(string directoryToArchive) //archiving of one folder
         {
-            Thread.CurrentThread.Priority = ThreadPriority.Lowest;
-            if (File.Exists(directoryToArchive + ".zip"))//если архив уже существует - дополняем файлами
+            Thread.CurrentThread.Priority = ThreadPriority.Lowest;//low priority, because operation takes long time, it is not possible to use CPU much for so long
+            if (File.Exists(directoryToArchive + ".zip"))//if archive already exists in destination folder - only adding files
             {
                 using (ZipFile zip = ZipFile.Read(directoryToArchive + ".zip"))
                 {
@@ -295,7 +290,7 @@ namespace CardSorter
                     zip.Save();
                 }
             }
-            else//если нет - создаем новый
+            else//if not exists - creating new one
             {
                 using (ZipFile zip = new ZipFile(directoryToArchive))
                 {
@@ -305,10 +300,8 @@ namespace CardSorter
 
                 }
             }
-            
-
-            Thread.CurrentThread.Priority = ThreadPriority.Normal;
-            Directory.Delete(directoryToArchive, true);
+            Thread.CurrentThread.Priority = ThreadPriority.Normal;//setting priority default
+            Directory.Delete(directoryToArchive, true);//deleting archived directory
         }
     }
 }

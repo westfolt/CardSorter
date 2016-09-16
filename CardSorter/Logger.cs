@@ -31,7 +31,7 @@ namespace CardSorter
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(logFilePath,true))//добавляет строку в лог-файл
+                using (StreamWriter sw = new StreamWriter(logFilePath,true))//adds string to program log
                 {
                     sw.WriteLine(DateTime.Now+ ": "+message);
                 }

@@ -24,7 +24,7 @@ namespace CardSorter
 
 #region Data Input
             string[] argumentsHandled = UserInterface.InputHandle(args);
-            if (argumentsHandled == null) //если после обработки аргументов нет - завершаем программу
+            if (argumentsHandled == null) //if there are no arguments - shutting down program
             {
                 UserInterface.logger.LogWrite("Program was shut down because of wrong arguments input");//to log
                 return;
@@ -37,8 +37,8 @@ namespace CardSorter
 #endregion
 
 #region File Analyzing
-            FileSystemTasks fileSystem = new FileSystemTasks(pathFrom,pathTo,compressionLevel);//Объект для работы с файлами
-            fileSystem.AnalyzeIt();//запускаем анализ папки с логами
+            FileSystemTasks fileSystem = new FileSystemTasks(pathFrom,pathTo,compressionLevel);//object for work with filesystem
+            fileSystem.AnalyzeIt();//starting analyze of input folder
             if (fileSystem.LogsCollection.Count == 0)
             {
                 Console.WriteLine("Press any key to close program");
@@ -51,7 +51,7 @@ namespace CardSorter
 #endregion
 
 #region File Moving
-            fileSystem.MoveIt();//запускаем логику создания папок и перемещения файлов
+            fileSystem.MoveIt();//starting logic of folder creation and files moving
             Console.WriteLine("Press any key to continue");
             Console.ReadKey();
 #endregion

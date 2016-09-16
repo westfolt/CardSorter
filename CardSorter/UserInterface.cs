@@ -11,12 +11,11 @@ namespace CardSorter
 {
     class UserInterface
     {
-        private static bool stopped = true;
-        private static bool stopFlag = true;
+        private static bool stopped = true;//indicates, that progressbar has been stopped
+        private static bool stopFlag = true;//flag that stops progressbar
         public static string wordAction = "";
         public static double percentCompleted = 0;
-        public static string nextArchive = "";
-        public static Logger logger;//объект для записи логов
+        public static Logger logger;//object for logging
 
         public static bool Stopped
         {
@@ -47,7 +46,7 @@ namespace CardSorter
                 logger.LogWrite("Helper was corrupted or deleted and cannot be displayed");//to log
             }
         }
-        public static void ProgressDisplayer()
+        public static void ProgressDisplayer()//displays progressbar with percent indicator
         {
             string word = wordAction;
             percentCompleted = 0;
@@ -64,14 +63,14 @@ namespace CardSorter
                     {
                         Console.Write(".");    
                     }
-                    if(!stopFlag)
+                    if(!stopFlag)//checking, if operation ended
                         break;
                     Thread.Sleep(200);
                     Console.SetCursorPosition(word.Length, Console.CursorTop);
                     Console.ForegroundColor = ConsoleColor.Black;
                     for (int k = 0; k <= 5+percents.Length; k++)
                     {
-                        Console.Write(Convert.ToChar(219).ToString());
+                        Console.Write(Convert.ToChar(219).ToString());//clearing string
                     }
                     Console.ForegroundColor = ConsoleColor.Gray;
                     Console.SetCursorPosition(word.Length, Console.CursorTop);
@@ -79,7 +78,7 @@ namespace CardSorter
             }
             Console.SetCursorPosition(0, Console.CursorTop);
             Console.ForegroundColor = ConsoleColor.Black;
-            for (int i = 0; i <= word.Length+21; i++)//длина слова +процент+точки
+            for (int i = 0; i <= word.Length+21; i++)//initial word length + percent completed + dots
             {
                 Console.Write(Convert.ToChar(219).ToString());
             }
@@ -87,7 +86,7 @@ namespace CardSorter
             Console.SetCursorPosition(0,Console.CursorTop);
             stopped = true;
         }
-        public static void stopProgressBar()
+        public static void stopProgressBar()//gives ability for methods in parallel thread to stop progressbar
         {
             stopFlag = false;
         }
@@ -97,10 +96,10 @@ namespace CardSorter
             Console.ForegroundColor = color;
             Console.WriteLine(message);
             Console.ForegroundColor = ConsoleColor.Gray;
-        }
+        }//displays message to user with specified color
         public static string[] InputHandle(string[] args)
         {
-            string[] argumnetsHandled = new string[3];
+            string[] argumnetsHandled = new string[3];//for output of method
             if (args.Length == 0)
             {
                 ShowToUser("Command cannot run without arguments", ConsoleColor.Red);
@@ -119,15 +118,15 @@ namespace CardSorter
                 logger.LogWrite("Error: running with more arguments than accepted");//to log
                 return null;
             }
-            else
+            else//if arguments.Count between 1 and 3
             {
                 for (int i = 0; i < args.Length; i++)
                 {
                     argumnetsHandled[i] = args[i];
                 }
             }
-            //проверяем по очереди введенные пользователем аргументы
-            if (!Directory.Exists(argumnetsHandled[0]))//входящая папка
+            //checking one by one arguments entered by user
+            if (!Directory.Exists(argumnetsHandled[0]))//input folder
             {
                 ShowToUser("There is no such input directory", ConsoleColor.Red);
                 Console.WriteLine("Press any key to exit");
@@ -135,9 +134,9 @@ namespace CardSorter
                 logger.LogWrite("Error: No such input dictionary");//to log
                 return null;
             }
-            else if(!Directory.Exists(argumnetsHandled[1]))//исходящая папка
+            else if(!Directory.Exists(argumnetsHandled[1]))//output folder
             {
-                if (argumnetsHandled[1] == null)
+                if (argumnetsHandled[1] == null)//ok, than archiving to the input folder with default compression level
                 {
                     ShowToUser("You have not specified output folder and compression level", ConsoleColor.Yellow);
                     ShowToUser("Output will go to the input folder with default compression level 5",
@@ -156,7 +155,7 @@ namespace CardSorter
                         {
                             Directory.CreateDirectory(argumnetsHandled[1]);
                         }
-                        catch (Exception ex)//доделать!!!! запись в лог
+                        catch (Exception ex)
                         {
                             ShowToUser("Cannot create directory!!!", ConsoleColor.Red);
                             Console.WriteLine("Press any key to exit");
@@ -167,7 +166,7 @@ namespace CardSorter
                         ShowToUser("Directory was succesfully created", ConsoleColor.Green);
                         logger.LogWrite("Directory " + argumnetsHandled[1] + " was succesfully created");//to log
                     }
-                    else
+                    else//user doesnt want to create directory entered, shutting down...
                     {
                         Console.WriteLine("Shutting down program...");
                         Console.WriteLine("Press any key to exit");
@@ -177,7 +176,7 @@ namespace CardSorter
                     }
                 }
             }
-            else if (argumnetsHandled[2] == null)//степень сжатия архиватора
+            else if (argumnetsHandled[2] == null)//archiver compression level
             {
                 ShowToUser("Archiving will be done with default compression level 5", ConsoleColor.Yellow);
                 Console.WriteLine("Press any key to continue");
@@ -185,7 +184,7 @@ namespace CardSorter
                 Console.ReadKey();
                 return argumnetsHandled;
             }
-            int compressionLevel = 10;//compression level
+            int compressionLevel = 5;//compression level assigned to default level
             try
             {
                 compressionLevel = Convert.ToInt32(argumnetsHandled[2]);
@@ -208,6 +207,6 @@ namespace CardSorter
                 return null;
             }
             return argumnetsHandled;
-        }
+        }//handles user input, error checking
     }
 }
