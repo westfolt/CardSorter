@@ -1,14 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Remoting.Channels;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using Ionic.BZip2;
-using Ionic.Zip;
-using Ionic.Zlib;
+
 
 namespace CardSorter
 {

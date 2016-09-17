@@ -5,3 +5,4 @@ D:\prog\C#\Visual Studio\real\CardSorter\CardSorter\bin\Debug\DotNetZip.dll
 D:\prog\C#\Visual Studio\real\CardSorter\CardSorter\bin\Debug\DotNetZip.xml
 D:\prog\C#\Visual Studio\real\CardSorter\CardSorter\obj\Debug\CardSorter.exe
 D:\prog\C#\Visual Studio\real\CardSorter\CardSorter\obj\Debug\CardSorter.pdb
+D:\prog\C#\Visual Studio\real\CardSorter\CardSorter\obj\Debug\CardSorter.csprojResolveAssemblyReference.cache
