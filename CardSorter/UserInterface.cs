@@ -11,25 +11,25 @@ namespace CardSorter
 {
     class UserInterface
     {
-        private static bool stopped = true;//indicates, that progressbar has been stopped
-        private static bool stopFlag = true;//flag that stops progressbar
-        public static string wordAction = "";
-        public static double percentCompleted = 0;
-        public static Logger logger;//object for logging
+        private static bool _stopped = true;//indicates, that progressbar has been stopped
+        private static bool _stopFlag = true;//flag that stops progressbar
+        public static string WordAction = "";
+        public static double PercentCompleted = 0;
+        public static Logger Logger;//object for logging
 
         public static bool Stopped
         {
-            get { return stopped; }
+            get { return _stopped; }
         }
         
 
         public static void ProgramStart()
         {
-            logger = Logger.GetLogger();
+            Logger = Logger.GetLogger();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Card Sorter 1.0 started");
             Console.ForegroundColor = ConsoleColor.Gray;
-            logger.LogWrite("Program started");//to log
+            Logger.LogWrite("Program started");//to log
         }
         public static void HelpDisplay()
         {
@@ -43,27 +43,27 @@ namespace CardSorter
             else
             {
                 Console.WriteLine("Sorry, program help was removed or corrupted");
-                logger.LogWrite("Helper was corrupted or deleted and cannot be displayed");//to log
+                Logger.LogWrite("Helper was corrupted or deleted and cannot be displayed");//to log
             }
         }
         public static void ProgressDisplayer()//displays progressbar with percent indicator
         {
-            string word = wordAction;
-            percentCompleted = 0;
+            string word = WordAction;
+            PercentCompleted = 0;
             Console.Write(word);
-            stopFlag = true;
-            stopped = false;
-            while (stopFlag)
+            _stopFlag = true;
+            _stopped = false;
+            while (_stopFlag)
             {
                 for (int i = 0; i <= 5; i++)
                 {
-                    string percents = String.Format(", {0}% completed", percentCompleted);
+                    string percents = String.Format(", {0}% completed", PercentCompleted);
                     Console.Write(percents);
                     for (int j = 0; j <= i; j++)
                     {
                         Console.Write(".");    
                     }
-                    if(!stopFlag)//checking, if operation ended
+                    if(!_stopFlag)//checking, if operation ended
                         break;
                     Thread.Sleep(200);
                     Console.SetCursorPosition(word.Length, Console.CursorTop);
@@ -84,11 +84,11 @@ namespace CardSorter
             }
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.SetCursorPosition(0,Console.CursorTop);
-            stopped = true;
+            _stopped = true;
         }
-        public static void stopProgressBar()//gives ability for methods in parallel thread to stop progressbar
+        public static void StopProgressBar()//gives ability for methods in parallel thread to stop progressbar
         {
-            stopFlag = false;
+            _stopFlag = false;
         }
         
         private static void ShowToUser(string message, ConsoleColor color)
@@ -106,7 +106,7 @@ namespace CardSorter
                 HelpDisplay();
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
-                logger.LogWrite("Error: running without arguments");//to log
+                Logger.LogWrite("Error: running without arguments");//to log
                 return null;
             }
             else if (args.Length > 3)
@@ -115,7 +115,7 @@ namespace CardSorter
                 HelpDisplay();
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
-                logger.LogWrite("Error: running with more arguments than accepted");//to log
+                Logger.LogWrite("Error: running with more arguments than accepted");//to log
                 return null;
             }
             else//if arguments.Count between 1 and 3
@@ -131,7 +131,7 @@ namespace CardSorter
                 ShowToUser("There is no such input directory", ConsoleColor.Red);
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
-                logger.LogWrite("Error: No such input dictionary");//to log
+                Logger.LogWrite("Error: No such input dictionary");//to log
                 return null;
             }
             else if(!Directory.Exists(argumnetsHandled[1]))//output folder
@@ -160,18 +160,18 @@ namespace CardSorter
                             ShowToUser("Cannot create directory!!!", ConsoleColor.Red);
                             Console.WriteLine("Press any key to exit");
                             Console.ReadKey();
-                            logger.LogWrite("Error: Directory cannot be created, error message: " + ex.Message);//to log
+                            Logger.LogWrite("Error: Directory cannot be created, error message: " + ex.Message);//to log
                             return null;
                         }
                         ShowToUser("Directory was succesfully created", ConsoleColor.Green);
-                        logger.LogWrite("Directory " + argumnetsHandled[1] + " was succesfully created");//to log
+                        Logger.LogWrite("Directory " + argumnetsHandled[1] + " was succesfully created");//to log
                     }
                     else//user doesnt want to create directory entered, shutting down...
                     {
                         Console.WriteLine("Shutting down program...");
                         Console.WriteLine("Press any key to exit");
                         Console.ReadKey();
-                        logger.LogWrite("Program was shut down by user choice");//to log
+                        Logger.LogWrite("Program was shut down by user choice");//to log
                         return null;
                     }
                 }
@@ -195,7 +195,7 @@ namespace CardSorter
                 Console.WriteLine(ex.Message);
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
-                logger.LogWrite("Error: wrong compression level input");//to log
+                Logger.LogWrite("Error: wrong compression level input");//to log
                 return null;
             }
             if (compressionLevel > 9 || compressionLevel < 0)
@@ -203,7 +203,7 @@ namespace CardSorter
                 ShowToUser("Wrong compression level entered! Only ingers [0-9] allowed", ConsoleColor.Red);
                 Console.WriteLine("Press any key to exit");
                 Console.ReadKey();
-                logger.LogWrite("Error: wrong compression level input");//to log
+                Logger.LogWrite("Error: wrong compression level input");//to log
                 return null;
             }
             return argumnetsHandled;
