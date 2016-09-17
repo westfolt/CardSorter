@@ -9,29 +9,29 @@ namespace CardSorter
 {
     class Logger//singleton logger
     {
-        private static Logger logger;
-        private string logFilePath;
+        private static Logger _logger;
+        private readonly string _logFilePath;
 
         private Logger()
         {
-            logFilePath = "CardSorter.log";
-            if (!File.Exists(logFilePath))
+            _logFilePath = "CardSorter.log";
+            if (!File.Exists(_logFilePath))
             {
-                File.Create(logFilePath);
+                File.Create(_logFilePath);
             }
         }
         public static Logger GetLogger()
         {
-            if (logger==null)
-                logger = new Logger();
-            return logger;
+            if (_logger==null)
+                _logger = new Logger();
+            return _logger;
         }
 
         public void LogWrite(string message)
         {
             try
             {
-                using (StreamWriter sw = new StreamWriter(logFilePath,true))//adds string to program log
+                using (StreamWriter sw = new StreamWriter(_logFilePath,true))//adds string to program log
                 {
                     sw.WriteLine(DateTime.Now+ ": "+message);
                 }

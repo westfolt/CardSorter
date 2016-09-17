@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using Ionic.Zip;
 using Ionic.Zlib;
@@ -13,11 +10,10 @@ namespace CardSorter
 {
     class FileSystemTasks
     {
-        private List<LogItem> _logsCollection;
+        private readonly List<LogItem> _logsCollection;
         private string _pathFrom;//change fields down!!!!!!!!!!!testing!!!!!!!!!!!!!!
         private string _pathTo;
-        private CompressionLevel compressionLevel;
-        private List<string> yearFoldersFinal;//for storage of yearFolders in destination path
+        private readonly List<string> _yearFoldersFinal;//for storage of yearFolders in destination path
 
         //constructor
         public FileSystemTasks(string pathFrom,string pathTo, int compressionLevel)
@@ -25,7 +21,7 @@ namespace CardSorter
             PathFrom = pathFrom;
             PathTo = pathTo;
             _logsCollection = new List<LogItem>();
-            yearFoldersFinal = new List<string>();
+            _yearFoldersFinal = new List<string>();
 #region compressionLevel
             switch (compressionLevel)
             {
@@ -110,22 +106,22 @@ namespace CardSorter
         }//gives month name instead of number
         public void AnalyzeIt()//starts analyzer and progressbar in parallel
         {
-            UserInterface.wordAction = "Analyzing";
+            UserInterface.WordAction = "Analyzing";
             Parallel.Invoke(UserInterface.ProgressDisplayer,Analyzer);
         }
         public void MoveIt()//starts mover and progressbar in parallel
         {
-            UserInterface.wordAction = "Moving files";
+            UserInterface.WordAction = "Moving files";
             Parallel.Invoke(UserInterface.ProgressDisplayer,Mover);
         }
         public void ArchivateIt()//starts archiver and progressbar in parallel
         {
-            UserInterface.wordAction = "Archiving files";
+            UserInterface.WordAction = "Archiving files";
             Parallel.Invoke(UserInterface.ProgressDisplayer,MassiveArchiver);
         }
         private void Analyzer()
         {
-            UserInterface.logger.LogWrite("File analyze started");//to log
+            UserInterface.Logger.LogWrite("File analyze started");//to log
             string[] filesInFolder = Directory.GetFiles(_pathFrom);
             double percentCompletion = 0;
             double oneAnalyzeCost = Math.Round((100.0/filesInFolder.Length),2);
@@ -137,24 +133,24 @@ namespace CardSorter
                     _logsCollection.Add(new LogItem(file));//if yes - adding it to collection
                 }
                 percentCompletion += oneAnalyzeCost;//every file adds completion percent
-                UserInterface.percentCompleted = Math.Round(percentCompletion);
+                UserInterface.PercentCompleted = Math.Round(percentCompletion);
                 Thread.Sleep(50);//for testing purpose only!!!!!!!!!!!!!!
             }
-            UserInterface.percentCompleted = 100;//analyze completed, setting percent to 100
+            UserInterface.PercentCompleted = 100;//analyze completed, setting percent to 100
             Thread.Sleep(2000);
-            UserInterface.stopProgressBar();//calling progressbar stop
+            UserInterface.StopProgressBar();//calling progressbar stop
             while (!UserInterface.Stopped)
             {
                 Thread.Sleep(100);
             }
-            UserInterface.percentCompleted = 0;//after progressbar stop returning percent to 0
+            UserInterface.PercentCompleted = 0;//after progressbar stop returning percent to 0
             if (_logsCollection.Count != 0)//if log files were found
             {
                 Console.ForegroundColor = ConsoleColor.Green;
                 string message = string.Format("Analyze finished, {0} files will be sorted and archived",
                     _logsCollection.Count);
                 Console.WriteLine(message);
-                UserInterface.logger.LogWrite(message);//to log
+                UserInterface.Logger.LogWrite(message);//to log
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
             else//if not
@@ -162,7 +158,7 @@ namespace CardSorter
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 string message = "No card logs were found in selected folder";
                 Console.WriteLine(message);
-                UserInterface.logger.LogWrite(message);//to log
+                UserInterface.Logger.LogWrite(message);//to log
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
         }
@@ -173,9 +169,9 @@ namespace CardSorter
             foreach (LogItem logItem in LogsCollection)
             {
                 string tempDirectory = _pathTo + @"\" + logItem.Year;
-                if (!yearFoldersFinal.Contains(tempDirectory))
+                if (!_yearFoldersFinal.Contains(tempDirectory))
                 {
-                    yearFoldersFinal.Add(tempDirectory);    
+                    _yearFoldersFinal.Add(tempDirectory);    
                 }
                 #region Logic of folder creation
                 if (!Directory.Exists(tempDirectory))
@@ -206,42 +202,42 @@ namespace CardSorter
                 }
                 catch (Exception ex)
                 {
-                    UserInterface.logger.LogWrite("Error occured moving file " + logItem.Info.Name + " to folder " + tempDirectory);//to log
-                    UserInterface.logger.LogWrite("Error message: " + ex.Message);//to log
+                    UserInterface.Logger.LogWrite("Error occured moving file " + logItem.Info.Name + " to folder " + tempDirectory);//to log
+                    UserInterface.Logger.LogWrite("Error message: " + ex.Message);//to log
                 }
-                UserInterface.logger.LogWrite("File " + logItem.Info.Name + " was successfully moved to folder: " + tempDirectory);//to log
+                UserInterface.Logger.LogWrite("File " + logItem.Info.Name + " was successfully moved to folder: " + tempDirectory);//to log
                 processCompletion += oneMoveCost;//increasing percent with every file move
-                UserInterface.percentCompleted = Math.Round(processCompletion);
+                UserInterface.PercentCompleted = Math.Round(processCompletion);
                 Thread.Sleep(100);//for testing only!!!!!!!!!!!!1
             }
-            UserInterface.percentCompleted = 100;//completed - percent 100
+            UserInterface.PercentCompleted = 100;//completed - percent 100
             Thread.Sleep(2000);
-            UserInterface.stopProgressBar();//stopping progressbar
+            UserInterface.StopProgressBar();//stopping progressbar
             while (!UserInterface.Stopped)
             {
                 Thread.Sleep(50);
             }
-            UserInterface.percentCompleted = 0;//making percent 0 again
+            UserInterface.PercentCompleted = 0;//making percent 0 again
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Files have been moved succesfully to folders");
             Console.ForegroundColor = ConsoleColor.Gray;
-            UserInterface.logger.LogWrite("Moving completed succesfully, all files moved");//to log
+            UserInterface.Logger.LogWrite("Moving completed succesfully, all files moved");//to log
         }
         public void MassiveArchiver()
         {
             int archivesCounter = 0;
-            foreach (string yearsDirectory in yearFoldersFinal)//узнаем количество папок для архивации для расчета процента готовности
+            foreach (string yearsDirectory in _yearFoldersFinal)//узнаем количество папок для архивации для расчета процента готовности
             {
                 string[] monthDirectoriesInYear = Directory.GetDirectories(yearsDirectory);
                 archivesCounter += monthDirectoriesInYear.Length;
             }
             double processCompletion = 0;
             double oneArchiveCost = Math.Round((100.0/archivesCounter),2);//на столько будет увеличиваться процент при архивировании каждой папки
-            foreach (string yearDirectory in yearFoldersFinal)//перебор по годам
+            foreach (string yearDirectory in _yearFoldersFinal)//перебор по годам
             {
                 string year = yearDirectory.Substring(yearDirectory.Length - 4);
                 string message = string.Format("Started archiving in folder {0}", year);//to log
-                UserInterface.logger.LogWrite(message);//to log
+                UserInterface.Logger.LogWrite(message);//to log
                 string[] directoriesForArchiving = Directory.GetDirectories(yearDirectory);
                 for (int i = 0; i < directoriesForArchiving.Length; i++)//перебор по месяцам
                 {
@@ -249,7 +245,7 @@ namespace CardSorter
                     {
                         OneFolderArchiver(directoriesForArchiving[i]);
                         processCompletion += oneArchiveCost;
-                        UserInterface.percentCompleted = Math.Round(processCompletion);
+                        UserInterface.PercentCompleted = Math.Round(processCompletion);
                     }
                     catch (Exception ex)
                     {
@@ -258,27 +254,27 @@ namespace CardSorter
                             directoriesForArchiving[i]);
                         Console.WriteLine(errorMessage);
                         Console.ForegroundColor = ConsoleColor.Gray;
-                        UserInterface.logger.LogWrite(errorMessage);//to log
-                        UserInterface.logger.LogWrite("Error message: " + ex.Message);//to log
+                        UserInterface.Logger.LogWrite(errorMessage);//to log
+                        UserInterface.Logger.LogWrite("Error message: " + ex.Message);//to log
                     }
                 }
                 string successMessage = string.Format("Finished archiving of folder {0}", year);//to log
-                UserInterface.logger.LogWrite(successMessage);
+                UserInterface.Logger.LogWrite(successMessage);
             }
-            UserInterface.percentCompleted = 100;//задача завершена, процент выполнения=100
+            UserInterface.PercentCompleted = 100;//задача завершена, процент выполнения=100
             Thread.Sleep(2000);
-            UserInterface.stopProgressBar();
+            UserInterface.StopProgressBar();
             while (!UserInterface.Stopped)
             {
                 Thread.Sleep(50);
             }
-            UserInterface.percentCompleted = 0;//после завершения прогрессбара возвращаем обратно значение процента
+            UserInterface.PercentCompleted = 0;//после завершения прогрессбара возвращаем обратно значение процента
             Console.ForegroundColor = ConsoleColor.Green;
             string archivingFinishedMessage = string.Format(
                 "All files were succcesfully archived, {0} archives created", archivesCounter);
             Console.WriteLine(archivingFinishedMessage);
             Console.ForegroundColor = ConsoleColor.Gray;
-            UserInterface.logger.LogWrite(archivingFinishedMessage);//to log
+            UserInterface.Logger.LogWrite(archivingFinishedMessage);//to log
             Console.ReadKey();//убрать в конце!!!!!!!!!!!!!!
         }//uses onefolderarchiver to archive all months folders
 

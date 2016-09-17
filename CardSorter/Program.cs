@@ -26,13 +26,13 @@ namespace CardSorter
             string[] argumentsHandled = UserInterface.InputHandle(args);
             if (argumentsHandled == null) //if there are no arguments - shutting down program
             {
-                UserInterface.logger.LogWrite("Program was shut down because of wrong arguments input");//to log
+                UserInterface.Logger.LogWrite("Program was shut down because of wrong arguments input");//to log
                 return;
             }
             string pathFrom = argumentsHandled[0];
             string pathTo = argumentsHandled[1];
             int compressionLevel = Convert.ToInt32(argumentsHandled[2]);
-            UserInterface.logger.LogWrite("Successfull program start. Input folder: " + pathFrom + " , output folder: " + pathTo + 
+            UserInterface.Logger.LogWrite("Successfull program start. Input folder: " + pathFrom + " , output folder: " + pathTo + 
                 " , compression level: " + compressionLevel);//to log
 #endregion
 
@@ -43,7 +43,7 @@ namespace CardSorter
             {
                 Console.WriteLine("Press any key to close program");
                 Console.ReadKey();
-                UserInterface.logger.LogWrite("Program stopped because no *.log files were found in selected folder");//to log
+                UserInterface.Logger.LogWrite("Program stopped because no *.log files were found in selected folder");//to log
                 return;
             }
             Console.WriteLine("Press any key to continue");
@@ -61,7 +61,7 @@ namespace CardSorter
             Console.WriteLine("Press any key to exit");
             Console.ReadKey();
 #endregion
-            UserInterface.logger.LogWrite("Program finished correctly");//to log
+            UserInterface.Logger.LogWrite("Program finished correctly");//to log
         }
     }
 }
