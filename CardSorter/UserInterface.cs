@@ -11,15 +11,23 @@ namespace CardSorter
         public static string WordAction = "";
         public static double PercentCompleted = 0;
         public static Logger Logger;//object for logging
+        private static string _programOwnPath;//path where this program installed
 
         public static bool Stopped
         {
             get { return _stopped; }
         }
-        
+
+        public static string ProgramOwnPath
+        {
+            get { return _programOwnPath; }
+        }
+
 
         public static void ProgramStart()
         {
+            //setting variable to path, where program exe is
+            _programOwnPath = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
             Logger = Logger.GetLogger();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Card Sorter 1.0 started");
@@ -28,9 +36,9 @@ namespace CardSorter
         }
         public static void HelpDisplay()
         {
-            if (File.Exists("help.txt"))
+            if (File.Exists(_programOwnPath +"\\help.txt"))
             {
-                using (StreamReader sr = new StreamReader("help.txt"))
+                using (StreamReader sr = new StreamReader(_programOwnPath + "\\help.txt"))
                 {
                     Console.WriteLine(sr.ReadToEnd());
                 }

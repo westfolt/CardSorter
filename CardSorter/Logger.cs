@@ -9,10 +9,13 @@ namespace CardSorter
 
         private Logger()
         {
-            _logFilePath = "CardSorter.log";
+            _logFilePath =UserInterface.ProgramOwnPath + "\\CardSorter.log";
             if (!File.Exists(_logFilePath))
             {
-                File.Create(_logFilePath);
+                using (StreamWriter sw = File.CreateText(_logFilePath))
+                {
+                    sw.WriteLine(DateTime.Now + ": New log file was created!");
+                }
             }
         }
         public static Logger GetLogger()

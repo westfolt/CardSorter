@@ -14,7 +14,7 @@ namespace CardSorter
         private string _pathFrom;//change fields down!!!!!!!!!!!testing!!!!!!!!!!!!!!
         private string _pathTo;
         private readonly List<string> _yearFoldersFinal;//for storage of yearFolders in destination path
-
+        
         //constructor
         public FileSystemTasks(string pathFrom,string pathTo, int compressionLevel)
         {

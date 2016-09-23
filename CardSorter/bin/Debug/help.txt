@@ -13,4 +13,4 @@ or
 Ast1_2015-11-12_20-00-00UTC_COM15.log
 
 [output folder] - folder, in which you want to place archives with sorted logs
-[compression level] - level of compression for archiver (1-10, 5 by default)
+[compression level] - level of compression for archiver (0-9, 5 by default)
