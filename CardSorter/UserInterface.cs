@@ -9,7 +9,8 @@ namespace CardSorter
         private static bool _stopped = true;//indicates, that progressbar has been stopped
         private static bool _stopFlag = true;//flag that stops progressbar
         public static string WordAction = "";
-        public static double PercentCompleted = 0;
+        public static int TotalFiles = 0;
+        public static int CompletedFiles = 0;
         public static Logger Logger;//object for logging
         private static string _programOwnPath;//path where this program installed
 
@@ -52,7 +53,8 @@ namespace CardSorter
         public static void ProgressDisplayer()//displays progressbar with percent indicator
         {
             string word = WordAction;
-            PercentCompleted = 0;
+            string completion = "";
+            CompletedFiles = 0;
             Console.Write(word);
             _stopFlag = true;
             _stopped = false;
@@ -60,8 +62,8 @@ namespace CardSorter
             {
                 for (int i = 0; i <= 5; i++)
                 {
-                    string percents = String.Format(", {0}% completed", PercentCompleted);
-                    Console.Write(percents);
+                    completion = String.Format(", {0} of {1} completed", CompletedFiles, TotalFiles);//shows files operation completion
+                    Console.Write(completion);
                     for (int j = 0; j <= i; j++)
                     {
                         Console.Write(".");    
@@ -71,7 +73,7 @@ namespace CardSorter
                     Thread.Sleep(200);
                     Console.SetCursorPosition(word.Length, Console.CursorTop);
                     Console.ForegroundColor = ConsoleColor.Black;
-                    for (int k = 0; k <= 5+percents.Length; k++)
+                    for (int k = 0; k <= 5+completion.Length; k++)
                     {
                         Console.Write(Convert.ToChar(219).ToString());//clearing string
                     }
@@ -81,7 +83,7 @@ namespace CardSorter
             }
             Console.SetCursorPosition(0, Console.CursorTop);
             Console.ForegroundColor = ConsoleColor.Black;
-            for (int i = 0; i <= word.Length+21; i++)//initial word length + percent completed + dots
+            for (int i = 0; i <= word.Length+completion.Length + 7; i++)//initial word length + completion + dots
             {
                 Console.Write(Convert.ToChar(219).ToString());
             }
@@ -152,7 +154,7 @@ namespace CardSorter
                 {
                     Console.Write("There is no such output directory on the drive, try to create it? (y/n): ");
                     string s = Console.ReadLine();
-                    if (s == "y")
+                    if (s == "y" || s == "Y")
                     {
                         try
                         {
@@ -163,18 +165,19 @@ namespace CardSorter
                             ShowToUser("Cannot create directory!!!", ConsoleColor.Red);
                             Console.WriteLine("Press any key to exit");
                             Console.ReadKey();
-                            Logger.LogWrite("Error: Directory cannot be created, error message: " + ex.Message);//to log
+                            Logger.LogWrite("Error: Directory cannot be created, error message: " + ex.Message);
+                                //to log
                             return null;
                         }
                         ShowToUser("Directory was succesfully created", ConsoleColor.Green);
-                        Logger.LogWrite("Directory " + argumnetsHandled[1] + " was succesfully created");//to log
+                        Logger.LogWrite("Directory " + argumnetsHandled[1] + " was succesfully created"); //to log
                     }
-                    else//user doesnt want to create directory entered, shutting down...
+                    else //user doesnt want to create directory entered, shutting down...
                     {
                         Console.WriteLine("Shutting down program...");
                         Console.WriteLine("Press any key to exit");
                         Console.ReadKey();
-                        Logger.LogWrite("Program was shut down by user choice");//to log
+                        Logger.LogWrite("Program was shut down by user choice"); //to log
                         return null;
                     }
                 }
