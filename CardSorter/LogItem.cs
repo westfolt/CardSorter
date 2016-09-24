@@ -17,7 +17,8 @@ namespace CardSorter
             int.TryParse(_fileInfo.Name.Substring(10, 2), out _month);
             int.TryParse(_fileInfo.Name.Substring(13, 2), out _dayOfMonth);
         }
-        public string Path { get; private set; }
+
+        private string Path { get; set; }
 
         public FileInfo Info
         {

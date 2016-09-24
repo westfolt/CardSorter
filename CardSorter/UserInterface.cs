@@ -4,31 +4,27 @@ using System.Threading;
 
 namespace CardSorter
 {
-    class UserInterface
+    static class UserInterface
     {
-        private static bool _stopped = true;//indicates, that progressbar has been stopped
         private static bool _stopFlag = true;//flag that stops progressbar
         public static string WordAction = "";
         public static int TotalFiles = 0;
         public static int CompletedFiles = 0;
         public static Logger Logger;//object for logging
-        private static string _programOwnPath;//path where this program installed
 
-        public static bool Stopped
+        //static constructor
+        static UserInterface()
         {
-            get { return _stopped; }
+            Stopped = true;
+            ProgramOwnPath = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
         }
 
-        public static string ProgramOwnPath
-        {
-            get { return _programOwnPath; }
-        }
+        public static bool Stopped { get; private set; }//shows if progressbar is stopped
+        public static string ProgramOwnPath { get; private set; }//shows program own path
 
 
         public static void ProgramStart()
         {
-            //setting variable to path, where program exe is
-            _programOwnPath = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
             Logger = Logger.GetLogger();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Card Sorter 1.0 started");
@@ -37,9 +33,9 @@ namespace CardSorter
         }
         public static void HelpDisplay()
         {
-            if (File.Exists(_programOwnPath +"\\help.txt"))
+            if (File.Exists(ProgramOwnPath +"\\help.txt"))
             {
-                using (StreamReader sr = new StreamReader(_programOwnPath + "\\help.txt"))
+                using (StreamReader sr = new StreamReader(ProgramOwnPath + "\\help.txt"))
                 {
                     Console.WriteLine(sr.ReadToEnd());
                 }
@@ -52,17 +48,17 @@ namespace CardSorter
         }
         public static void ProgressDisplayer()//displays progressbar with percent indicator
         {
-            string word = WordAction;
+            string word = WordAction + ":";
             string completion = "";
             CompletedFiles = 0;
             Console.Write(word);
             _stopFlag = true;
-            _stopped = false;
+            Stopped = false;
             while (_stopFlag)
             {
                 for (int i = 0; i <= 5; i++)
                 {
-                    completion = String.Format(", {0} of {1} completed", CompletedFiles, TotalFiles);//shows files operation completion
+                    completion = String.Format(" {0} of {1} completed", CompletedFiles, TotalFiles);//shows files operation completion
                     Console.Write(completion);
                     for (int j = 0; j <= i; j++)
                     {
@@ -89,7 +85,7 @@ namespace CardSorter
             }
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.SetCursorPosition(0,Console.CursorTop);
-            _stopped = true;
+            Stopped = true;
         }
         public static void StopProgressBar()//gives ability for methods in parallel thread to stop progressbar
         {

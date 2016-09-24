@@ -11,8 +11,6 @@ namespace CardSorter
     class FileSystemTasks
     {
         private readonly List<LogItem> _logsCollection;
-        private string _pathFrom;//change fields down!!!!!!!!!!!testing!!!!!!!!!!!!!!
-        private string _pathTo;
         private readonly List<string> _yearFoldersFinal;//for storage of yearFolders in destination path
         
         //constructor
@@ -77,33 +75,19 @@ namespace CardSorter
             November,
             December
         }
-
-        public string PathFrom
-        {
-            get { return _pathFrom; }
-            private set
-            {
-                _pathFrom = value;
-            }
-        }
-
-        public List<LogItem> LogsCollection
-        {
-            get { return _logsCollection; }
-        }
-
-        public string PathTo
-        {
-            get { return _pathTo; }
-            private set { _pathTo = value; }
-        }
-
-        public CompressionLevel Level { get; private set; }
-
         static string MonthNameGiver(int number)
         {
             return Enum.GetName(typeof(MonthsNames), number);
         }//gives month name instead of number
+#region Properties
+        private string PathFrom { get; set; }
+        public List<LogItem> LogsCollection
+        {
+            get { return _logsCollection; }
+        }
+        private string PathTo { get; set; }
+        private CompressionLevel Level { get; set; }
+#endregion
         public void AnalyzeIt()//starts analyzer and progressbar in parallel
         {
             UserInterface.WordAction = "Analyzing files";
@@ -119,10 +103,12 @@ namespace CardSorter
             UserInterface.WordAction = "Archiving files";
             Parallel.Invoke(UserInterface.ProgressDisplayer,MassiveArchiver);
         }
+
+#region Methods that do required actions
         private void Analyzer()
         {
             UserInterface.Logger.LogWrite("File analyze started");//to log
-            string[] filesInFolder = Directory.GetFiles(_pathFrom);
+            string[] filesInFolder = Directory.GetFiles(PathFrom);
             UserInterface.TotalFiles = filesInFolder.Length;//sending to progressbar total amount of files
             UserInterface.CompletedFiles = 0;
             foreach (string file in filesInFolder)
@@ -133,7 +119,7 @@ namespace CardSorter
                     _logsCollection.Add(new LogItem(file));//if yes - adding it to collection
                 }
                 UserInterface.CompletedFiles++;//every file adds completion
-                Thread.Sleep(5);//for testing purpose only!!!!!!!!!!!!!!
+                Thread.Sleep(1);//extra sleep, gives ability to watch file analyzing progress, can be deleted for higher speed
             }
             UserInterface.CompletedFiles = UserInterface.TotalFiles;//analyze completed
             Thread.Sleep(2000);
@@ -163,13 +149,13 @@ namespace CardSorter
                 Console.ForegroundColor = ConsoleColor.Gray;
             }
         }
-        public void Mover()//sorts files to folders like this: year\month\date
+        private void Mover()//sorts files to folders like this: year\month\date
         {
             UserInterface.TotalFiles = LogsCollection.Count;//sending to progressbar total amount of files
             UserInterface.CompletedFiles = 0;
             foreach (LogItem logItem in LogsCollection)
             {
-                string tempDirectory = _pathTo + @"\" + logItem.Year;
+                string tempDirectory = PathTo + @"\" + logItem.Year;
                 if (!_yearFoldersFinal.Contains(tempDirectory))
                 {
                     _yearFoldersFinal.Add(tempDirectory);    
@@ -208,7 +194,6 @@ namespace CardSorter
                 }
                 UserInterface.Logger.LogWrite("File " + logItem.Info.Name + " was successfully moved to folder: " + tempDirectory);//to log
                 UserInterface.CompletedFiles++;//increasing percent with every file move
-                Thread.Sleep(10);//for testing only!!!!!!!!!!!!1
             }
             UserInterface.CompletedFiles = UserInterface.TotalFiles;//completed all
             Thread.Sleep(2000);
@@ -225,7 +210,8 @@ namespace CardSorter
             Console.ForegroundColor = ConsoleColor.Gray;
             UserInterface.Logger.LogWrite("Moving completed succesfully, all files moved");//to log
         }
-        public void MassiveArchiver()//uses onefolderarchiver to archive all months folders
+
+        private void MassiveArchiver()//uses onefolderarchiver to archive all months folders
         {
             int archivesCounter = 0;
             foreach (string yearsDirectory in _yearFoldersFinal)//узнаем количество папок для архивации для расчета процента готовности
@@ -241,18 +227,18 @@ namespace CardSorter
                 string message = string.Format("Started archiving in folder {0}", year);//to log
                 UserInterface.Logger.LogWrite(message);//to log
                 string[] directoriesForArchiving = Directory.GetDirectories(yearDirectory);
-                for (int i = 0; i < directoriesForArchiving.Length; i++)//перебор по месяцам
+                foreach (string dir in directoriesForArchiving)
                 {
                     try
                     {
-                        OneFolderArchiver(directoriesForArchiving[i]);
+                        OneFolderArchiver(dir);
                         UserInterface.CompletedFiles++;
                     }
                     catch (Exception ex)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
                         string errorMessage = string.Format("Error occured in working with: {0}",
-                            directoriesForArchiving[i]);
+                            dir);
                         Console.WriteLine(errorMessage);
                         Console.ForegroundColor = ConsoleColor.Gray;
                         UserInterface.Logger.LogWrite(errorMessage);//to log
@@ -279,7 +265,6 @@ namespace CardSorter
             Console.ForegroundColor = ConsoleColor.Gray;
             UserInterface.Logger.LogWrite(archivingFinishedMessage);//to log
         }
-
         private void OneFolderArchiver(string directoryToArchive) //archiving of one folder
         {
             Thread.CurrentThread.Priority = ThreadPriority.Lowest;//low priority, because operation takes long time, it is not possible to use CPU much for so long
@@ -309,5 +294,6 @@ namespace CardSorter
             Thread.CurrentThread.Priority = ThreadPriority.Normal;//setting priority default
             Directory.Delete(directoryToArchive, true);//deleting archived directory
         }
+#endregion
     }
 }
